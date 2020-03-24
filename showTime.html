@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>时间</title>
+		<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+	</head>
+	<script type="text/javascript">
+		function htRem() {
+			var ww = document.documentElement.clientWidth;
+			if (ww > 750) {
+				ww = 750;
+			}
+			document.documentElement.style.fontSize = ww / 3.75 + "px";
+		}
+		htRem();
+		window.onresize = function () {
+			htRem();
+		}
+	</script>
+	<style type="text/css">
+		*{
+			margin: 0;padding: 0;
+		}
+		ul,ol,li{list-style:none;}
+		html,body{
+			width: 100%;
+			height: auto;
+			background: #fff;
+			font-size: 0.14rem;
+		}
+		body *{
+			box-sizing: border-box;
+		}
+		.title{
+			width: 100%;
+			height: 0.5rem;
+			line-height: 0.5rem;
+			background: #fff;
+			font-size: 0.2rem;
+			font-weight: 500;
+			text-align: center;
+			position: fixed;
+			left: 0;
+			top: 0;
+			z-index: 9;
+		}
+		.title span:nth-child(1),
+		.title span:nth-child(2){
+			width: 0.5rem;
+			float: left;
+		}
+		.title span:nth-child(4),
+		.title span:nth-child(5)
+		{
+			width: 0.5rem;
+			float: right;
+		}
+		.title span:nth-child(1),
+		.title span:nth-child(4){
+			/* background: rgba(5,5,5,0.4); */
+			color: rgba(5,5,5,0.4);
+		}
+		/*  */
+		.DayList{
+			width: 100%;
+			height: 0.35rem;
+			position: fixed;
+			left: 0;
+			top: 0.5rem;
+			z-index: 9;
+			color: rgba(0, 122, 255, 0.6);
+			background: #fff;
+			font-size: 0.15rem;
+			line-height: 0.345rem;
+			border-bottom: 0.01rem solid rgba(0,0,0,0.2);
+			text-align: center;
+		}
+		.DayList ul{
+			width: auto;
+			display: flex;
+			margin: 0 auto;
+			padding: 0 1%;
+		}
+		.DayList li{
+			width: 14%;
+			
+		}
+		/*  */
+		.dateList{
+			width: 100%;
+			padding: 0.85rem 1% 0;
+			background: #fff;
+			display: inline-block;
+		}
+		.dataMonthItem{
+			width: 100%;
+			margin: 0.1rem 0;
+			background: #fff;
+			box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+			border-radius: 0.04rem;
+			height: auto;
+			display: table;
+		}
+		.MonthTitle{
+			width: 100%;
+			height: 0.3rem;
+			text-align: center;
+			font-size: 0.14rem;
+			color: #666;
+			font-weight: 500;
+			line-height: 0.3rem;
+		}
+		.dataMonthItem ul{
+			width: 100%;
+			height: auto;
+			display: inline-block;
+			float: left;
+		}
+		.dataMonthItem li{
+			width: 14.25%;
+			height: 0.4rem;
+			float: left;
+			text-align: center;
+			line-height: 0.4rem;
+			border-radius: 0.04rem;
+			box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+			color: #000;
+			font-weight: 500;
+		}
+		.dataMonthItem .isNoteMonth{
+			color: rgba(0, 0, 0, 0.4);
+			font-weight: 400;
+		}
+		.thisTimeBoxShow{
+			width: 100%;
+			height: 0.4rem;
+			line-height: 0.4rem;
+			text-align: center;
+			font-size: 0.16rem;
+			color: #000;
+			font-weight: 500;
+		}
+	</style>
+	<body>
+		<div class="title">
+			<span><<</span>
+			<span><</span>
+			<span>2020.3</span>
+			<span>>></span>
+			<span>></span>
+		</div>
+		<div class="DayList">
+			<ul>
+				<li>周日</li>
+				<li>周一</li>
+				<li>周二</li>
+				<li>周三</li>
+				<li>周四</li>
+				<li>周五</li>
+				<li>周六</li>
+			</ul>
+		</div>
+		<div class="dateList">
+			
+			<div class="dataMonthItem">
+				<div class="MonthTitle">
+					<span>3</span>
+				</div>
+				<ul>
+					<li class="isNoteMonth">29</li>
+					<li>1</li>
+					<li>2</li>
+					<li>3</li>
+					<li>4</li>
+					<li>5</li>
+					<li>6</li>
+					<li>7</li>
+					<li>8</li>
+				</ul>
+			</div>
+			
+
+		</div>
+		<div class="thisTimeBoxShow">
+
+		</div>
+	</body>
+	<script type="text/javascript">
+		
+		// 
+		/*
+		* VS：v 0.0.1
+		* 
+		*第一版时间日历引用插件
+		*不定期更新修改完善
+		*
+		*/
+		
+		var DateTime = {
+		    //当前时间戳
+		    myDate : new Date(),
+			//替补
+		    formatNumber : function (n) {
+		        n = n.toString()
+		        return n[1] ? n : '0' + n
+		    },
+			//过滤时间long
+			longFn:(long)=>{
+				long = long || DateTime.myDate.getTime();
+				if(long < 10000000000){
+				    long = long * 1000;
+				}
+				return long
+			},
+			//拿到当前时间戳
+		    TimeType:function(long,type){
+		        long = DateTime.longFn(long)
+		        var remindTime = new Date(long);
+		        year = remindTime.getFullYear(),
+		            month = remindTime.getMonth() + 1,
+		            day = remindTime.getDate(),
+		            hour = remindTime.getHours(),
+		            minute = remindTime.getMinutes(),
+		            second = remindTime.getSeconds();
+		        timeSpanStr = [year, month, day].map(DateTime.formatNumber).join('-') + ' ' + [hour, minute,second].map(DateTime.formatNumber).join(':')
+		        return timeSpanStr;
+		    },
+			//返回年份
+			getFullYear :function (long){
+				long = DateTime.longFn(long)
+				var FullYear = new Date(long).getFullYear()
+				return FullYear
+			},
+			//返回月份
+			getMonth:function(long){
+				long = DateTime.longFn(long)
+				var Month = new Date(long).getMonth()
+				return Month + 1
+			},
+			//拿到某一月的天份
+			getData:function(long){
+				long = DateTime.longFn(long)
+				return DateTime.myDate.getDate()
+			},
+			//Date 对象返回一周中的某一天 (0 ~ 6)。
+			getDay:function(long){
+				long = DateTime.longFn(long);
+				var day = new Date(long).getDay();
+				 day = day == 0 ? "7" : day ;
+				return day
+			},
+			//闰年判读
+			isTowyear :function(long){
+				long = DateTime.longFn(long);
+				var FullYear = new Date(long).getFullYear();
+				if (FullYear%4 == 0 && FullYear%100!= 0){
+					return 1
+				}else if (FullYear%400 == 0 && FullYear%100!= 0){
+					return 1
+				}{
+					return 0
+				}
+			},
+			//返回这月有多少天
+			getMonthDay:function(long){
+				long = DateTime.longFn(long);
+				var FullYears = DateTime.getMonth(long);
+				var isTowyearS = DateTime.isTowyear(long);
+				if(FullYears == 4  || FullYears == 6 || FullYears == 9 || FullYears == 11){
+					return 30
+				}else if(FullYears == 2){
+					if(isTowyearS){
+						return 29
+					}else{
+						return 28
+					}
+				}else{
+					return 31
+				}
+			},
+			//拿到这个月一号是周几
+			getThisDay:function(long){
+				var FullYears = DateTime.getFullYear(long);
+				var Months = DateTime.getMonth(long);
+				var falstMonthTime = DateTime.getFantDay( FullYears + "-"+Months+ "-1 12:00");
+				var day = new Date(falstMonthTime).getDay();
+				return day
+			},
+			//拿到设置年月的时间戳
+			getFantDay:function(time){
+				var thisTime = new Date(time).getTime();
+				return thisTime
+			}
+		};
+		
+		//拿到前一个月的天份
+		function falstMonth(long){
+			var thisFullYear = DateTime.getFullYear(long);
+			var thisMonths = DateTime.getMonth(long) - 1;
+			var falstMonthTime = DateTime.getFantDay( thisFullYear + "-"+thisMonths+ "-1 12:00");
+			return  DateTime.getMonthDay(falstMonthTime)
+		}
+		//设置下个月的天份
+		function lastMonth(long){
+			var thisFullYear = DateTime.getFullYear(long);
+			var thisMonths = DateTime.getMonth(long) + 1;
+			var falstMonthTime = DateTime.getFantDay( thisFullYear + "-"+thisMonths+ "-1 12:00");
+			return  DateTime.getMonthDay(falstMonthTime)
+		}
+		// console.log(falstMonth(1356070860000))
+		//设置当前月份
+		function thisMonth(long){
+			long = long || "";
+			var falstMoreDay = falstMonth(long);//
+			var lastMonthDay = lastMonth(long);
+			var thisDay =  DateTime.getThisDay(long);//这个月1号周几
+			var thisMonthDay =  DateTime.getMonthDay(long);//这个月天数
+			var FullYears =	DateTime.getFullYear(long);//年
+			var	Months = DateTime.getMonth(long);//月
+			var Datas =	DateTime.getData(long);//日
+			//下个月1号周几
+			if(Months + 1 > 12 ){
+				var lastMonthTime = DateTime.getFantDay( (FullYears+1) + "-"+ 1 + "-1 12:00");
+			}else{
+				var lastMonthTime = DateTime.getFantDay( FullYears + "-"+(Months + 1)+ "-1 12:00");
+			}
+			var thisLastDay =  DateTime.getThisDay(lastMonthTime);//这个月1号周几
+			//上个月末尾日历
+			var falstdataDay = thisDay -1;
+			var falstMonthStr = "";
+			if(thisDay !== 0){
+				for(var e = 0;e < thisDay;e++){
+					var last = falstMoreDay - thisDay;
+					var den = Months-1
+					var ful = FullYears;
+					if(den < 1){
+						den = 12;
+						ful -= 1
+					}
+					falstMonthStr +=  "<li class='isNoteMonth' data='"+ful+"-"+den+"-"+(last + e + 1)+""+" 12:00'>"+ (last + e + 1)+"</li>"
+				}
+			}
+			//当月日历
+			var mountDataStr = ""
+			for(var i = 0;i < thisMonthDay;i++ ){
+				mountDataStr += "<li data='"+FullYears+"-"+Months+"-"+(i + 1)+""+" 12:00'>"+ (i + 1)+"</li>"
+			}
+			//下个月日历
+			var lastMonthStr = ""
+			if(thisLastDay != 0 ){
+				for(var i = 0;i < 7-thisLastDay;i++ ){
+					var den = Months+1
+					var ful = FullYears;
+					if(den >12){
+						den = 1;
+						ful += 1
+					}
+					lastMonthStr += "<li  class='isNoteMonth' data='"+ful+"-"+den+"-"+(i + 1)+""+" 12:00'>"+ (i + 1)+"</li>"
+				}
+			}
+			//当前时间默认第一天
+			$(".thisTimeBoxShow").html("当前选中时间为：" + FullYears + "-" + Months+ "-" + 1 + " 12:00" )
+			//跨年时间
+			$(".title span").eq(0).attr("data",(FullYears-1)+"-"+Months+"-"+ 1 +""+" 12:00");
+			$(".title span").eq(3).attr("data",(FullYears+1)+"-"+Months+"-"+ 1 +""+" 12:00");
+			//跨月时间
+			if(Months-1 < 1){
+				$(".title span").eq(1).attr("data",(FullYears-1)+"-"+12+"-"+ 1 +""+" 12:00");
+			}else{
+				$(".title span").eq(1).attr("data",FullYears+"-"+(Months-1)+"-"+ 1 +""+" 12:00");
+			}
+			if(Months+1 > 12){
+				$(".title span").eq(4).attr("data",(FullYears+1)+"-"+1+"-"+ 1 +""+" 12:00");
+			}else{
+				$(".title span").eq(4).attr("data",FullYears+"-"+(Months+1)+"-"+ 1 +""+" 12:00");
+			}
+			//头部展示
+			$(".title span").eq(2).html( FullYears + "." + Months);
+			//渲染日历
+			$(".dateList").html(`<div class="dataMonthItem">
+					<div class="MonthTitle">
+						<span>${Months}</span>
+					</div>
+					<ul>
+					${falstMonthStr}
+					${mountDataStr}
+					${lastMonthStr}
+					</ul>
+				</div>`)
+
+		}
+		thisMonth();
+
+		//点击切换日期
+		$(".title span").click(function () {
+			if($(this).attr("data")){
+				var longStr = $(this).attr("data");
+				console.log(longStr)
+				var longitem = DateTime.getFantDay(longStr);
+				console.log(longitem)
+				thisMonth(longStr);
+			}
+		});
+
+		//点击日历
+		$(".dateList").delegate("li","click",function () {
+			if($(this).hasClass("isNoteMonth")){
+				var longStr = $(this).attr("data");
+				console.log(longStr)
+				var longitem = DateTime.getFantDay(longStr);
+				thisMonth(longStr);
+			}else{
+				var longStr = $(this).attr("data");
+				console.log(longStr)
+				var longitem = DateTime.getFantDay(longStr);
+				console.log(longitem)
+				$(".thisTimeBoxShow").html("当前选中时间为：" + longStr)
+			}
+		})
+	</script>
+</html>
