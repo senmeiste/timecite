@@ -1,6 +1,11 @@
 var thmeLong;
 timeLong = function (long) {
     this.long = long;
+    this.dataClear = '';
+    this.dataSting = function (list = "Y-M-D h:m") {
+        this.dataClear = list;
+        return list;
+    };
     this.thisTime = function (long) {
         if(long){
             return new Date(long).getTime()
@@ -65,7 +70,7 @@ timeLong = function (long) {
 
 //当前时间或long时间转化
 timeLong.prototype.formatTime = function (long,format) {
-    format = format || 'Y-M-D h:m'
+    format = this.dataClear;
     var formateArr = ['Y', 'M', 'D', 'h', 'm', 's'];
     var thislong = this.thisTime(long);
     var returnArr = [this.FullYear(thislong),this.Month(thislong),this.Date(thislong),this.Hours(thislong),this.Minutes(thislong),this.Seconds(thislong)];
@@ -105,8 +110,10 @@ timeLong.prototype.neighborMonth = function (long,type = true) {
     }
     neighborMonth.Hours = this.Hours(thislong)
     neighborMonth.Minutes = this.Minutes(thislong)
-    neighborMonth.formatTime = neighborMonth.FullYear + "-" +neighborMonth.Month + "-" + neighborMonth.Date + " " + neighborMonth.Hours  + ":" + neighborMonth.Minutes;
+    // neighborMonth.formatTime = neighborMonth.FullYear + "-" +neighborMonth.Month + "-" + neighborMonth.Date + " " + neighborMonth.Hours  + ":" + neighborMonth.Minutes;
     neighborMonth.thisTime = this.thisTime(neighborMonth.formatTime);
+    neighborMonth.formatTime = this.formatTime(Number(neighborMonth.thisTime))
+
     neighborMonth.getMonthDay = this.getMonthDay(neighborMonth.thisTime);
     neighborMonth.getDay = this.getDay(neighborMonth.thisTime);
     neighborMonth.isTowyear = this.isTowyear(neighborMonth.thisTime);
@@ -116,17 +123,81 @@ timeLong.prototype.neighborMonth = function (long,type = true) {
 
 
 
+timeLong.prototype.timeLock = function(obiects=""){
+    if(obiects.dataSting){
+        this.dataSting(obiects.dataSting);
+    }
+    var timesThis ;
+    if(typeof obiects == "object"){
+        if(obiects.long < 10000000000 && obiects.long > 1000000000){
+            obiects.long = obiects.long * 1000
+        }
+        var NextFront = [];
+        if(obiects.Front){
+            NextFront.push(this.neighborMonth(obiects.long))
+        }
+            NextFront.push(this.neighborMonth(obiects.long,"this"))
+        if(obiects.Next){
+            NextFront.push(this.neighborMonth(obiects.long,false))
+        }
+        if(NextFront.length > 1){
+            timesThis = NextFront;
+        }else{
+            timesThis = this.neighborMonth(obiects.long,"this")
+        }
 
-
+    }
+    if(typeof obiects == "number"){
+        if(obiects < 10000000000 && obiects > 1000000000){
+            obiects = obiects * 1000
+        }
+        timesThis = this.neighborMonth(obiects.long,"this")
+    }
+    if(typeof obiects == "string" && Number(obiects) > 1000000000 ){
+        if(obiects.length < 12){
+            obiects = Number(obiects*1000).toFixed(0)
+        }
+        timesThis = this.formatTime(Number(obiects))
+    }
+    if(obiects == "" ){
+        timesThis = this.formatTime()
+    }
+    return timesThis;
+};
+console.log(timeLong.prototype)
 var thisTimes = new timeLong();
+thisTimes.__proto__.timeNext = function(obiects=""){
 
-console.log(thisTimes.thisTime())
-console.log(thisTimes.formatTime(1587094361151))
-console.log(thisTimes.formatTime())
-console.log(thisTimes.neighborMonth())
+}
 
-console.log(thisTimes.neighborMonth(null,false))
-console.log(thisTimes.neighborMonth(null,"this"))
+console.log(thisTimes.__proto__)
+console.log(thisTimes.prototype)
+
+thisTimes.prototype.timeNext = function(obiects=""){
+
+}
+// console.log(thisTimes.timeLock())
+// console.log(thisTimes.timeLock("1587094361151"))
+// console.log(thisTimes.formatTime(1587094361151))
+
+console.log(
+
+thisTimes.timeLock({
+    long: '1587094361151',
+    dataSting: 'Y-M-D h:m:s',
+    Front:true,
+    Next:true,
+    callbackData: Object,
+})
+
+
+)
+
+// console.log(thisTimes.formatTime())
+// console.log(thisTimes.neighborMonth())
+// console.log(thisTimes.neighborMonth(null,false))
+// console.log(thisTimes.neighborMonth(null,"this"))
+// console.log(thisTimes.timeLock())
 
 
 
